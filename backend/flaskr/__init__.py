@@ -33,15 +33,15 @@ def create_app(test_config=None):
         # sort alphabetically using order_by(Category.type)
         # instead of order_by(Category.id)
         categories = Category.query.order_by(Category.type).all()
-        formated_categories = [category.format() for category in categories]
-        
+        # formated_categories = [category.format() for category in categories]
+        formated_categories = {category.id:category.type for category in categories}
         return jsonify({
             'success' : True,
-            'categories' : formated_categories
+            'categories' : formated_categories  
         })
 
     # An endpoint to handle GET requests for questions,
-    @app.route('/questions') 
+    @app.route('/questions', methods=['GET']) 
     def get_questions():
         # including pagination (every 10 questions).
         page = request.args.get('page', 1, type = int)
@@ -85,6 +85,7 @@ def create_app(test_config=None):
     def del_specific_question(question_id):
         question = Question.query.filter(Question.id == question_id).one_or_none()
         print(question)
+
         if question is None:
             abort(404)
         else :
@@ -96,14 +97,33 @@ def create_app(test_config=None):
 
     """
     @TODO:
-    Create an endpoint to POST a new question,
-    which will require the question and answer text,
-    category, and difficulty score.
-
     TEST: When you submit a question on the "Add" tab,
     the form will clear and the question will appear at the end of the last page
     of the questions list in the "List" tab.
     """
+    # An endpoint to POST a new question,
+    @app.route('/questions', methods=["POST"])
+    def create_question():
+
+        question = Question(
+            question = request.get_json().get('question', None),
+            answer = request.get_json().get('answer', None),
+            category = request.get_json().get('category', None),
+            difficulty = request.get_json().get('difficulty', None)
+        )
+        categories = Category.query.order_by(Category.type).all()
+        formated_categories = {category.id:category.type for category in categories}
+
+        # if question is None:
+        #     abort(404)
+        # else :
+        question.insert()
+        return jsonify({
+            'success' : True,
+            'created' :  question.id,
+            'question' : question.format(),
+            'categories' : formated_categories
+        })
 
     """
     @TODO:
