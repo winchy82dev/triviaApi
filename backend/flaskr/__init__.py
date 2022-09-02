@@ -88,7 +88,7 @@ def create_app(test_config=None):
         if question is None:
             abort(404)
         else :
-            # question.delete()
+            question.delete()
             return jsonify({
                 'success' : True,
                 'question' : question.format()
