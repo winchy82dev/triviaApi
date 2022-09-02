@@ -18,12 +18,11 @@ def create_app(test_config=None):
     # Setting up CORS. Allow '*' for origins.
     # TODO:Delete the sample route after completing the TODOs
     
-    cors = CORS(app, resources={r"/*": {"origins": "*"}})
+    cors = CORS(app, resources={r"*/*": {"origins": "*"}})
    
     # Setting Access-Control-Allow Using the after_request decorator
-    
-    # CORS Headers 
     @app.after_request
+    # CORS Headers 
     def after_request(response):
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
         response.headers.add('Access-Control-Allow-Methods', 'GET,PATCH,POST,DELETE,OPTIONS')
@@ -32,12 +31,11 @@ def create_app(test_config=None):
     @app.route('/categories')
     @cross_origin()
     def get_categories():
-        """
-        An endpoint to handle GET requests
-        for all available categories.
-        """
+        # An endpoint to handle GET requests for all categories.
+        
         categories = Category.query.all()
         formated_categories = [category.format() for category in categories]
+        
         return jsonify({
             'success' : True,
             'categories' : formated_categories
@@ -49,11 +47,15 @@ def create_app(test_config=None):
     def get_questions():
         # including pagination (every 10 questions).
         page = request.args.get('page', 1, type = int)
-        start = (page - 1) * 10
-        end = start + 10
+        start = (page - 1) * QUESTIONS_PER_PAGE
+        end = start + QUESTIONS_PER_PAGE
 
         questions = Question.query.all()
         formated_questions = [question.format() for question in questions]
+
+        categories = Category.query.all()
+        categories_type = {category.id:category.type for category in categories}
+        print(categories_type)
         return jsonify({
             'success' : True,
             # This endpoint should return a list of questions,
@@ -61,9 +63,9 @@ def create_app(test_config=None):
             # number of total questions
             'total_questions' : len(formated_questions),
             # current category
-            'current_category' : 'TODO: implement',
+            'current_category' : None,
             # categories
-            'categories' : 'TODO: implement'
+            'categories' : categories_type
             })
 
     """
