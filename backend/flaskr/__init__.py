@@ -82,7 +82,7 @@ def create_app(test_config=None):
     This removal will persist in the database and when you refresh the page.
     """
     @app.route('/questions/<int:question_id>', methods=["DELETE"])
-    def get_specific_question(question_id):
+    def del_specific_question(question_id):
         question = Question.query.filter(Question.id == question_id).one_or_none()
         print(question)
         if question is None:
