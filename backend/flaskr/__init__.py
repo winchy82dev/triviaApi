@@ -68,7 +68,7 @@ def create_app(test_config=None):
             # This endpoint should return a list of questions,
             'questions' : current_questions,
             # number of total questions
-            'total_questions' : len(Question.query.all()),
+            'total_questions' : Question.query.count(),
             # current category
             'current_category' : None,
             # categories
@@ -91,18 +91,31 @@ def create_app(test_config=None):
     This removal will persist in the database and when you refresh the page.
     """
     @app.route('/questions/<int:question_id>', methods=["DELETE"])
-    def del_specific_question(question_id):
-        question = Question.query.filter(Question.id == question_id).one_or_none()
-        print(question)
+    def delete_question(question_id):
+        try:
+            question = Question.query.filter(Question.id == question_id).one_or_none()
+            print(question)
 
-        if question is None:
-            abort(404)
-        else :
+            if question is None:
+                abort(404)
+            
             question.delete()
+            selection = Question.query.order_by(Question.id).all()
+            count = Question.query.count()
+            current_questions = paginate_questions(request, selection)
+            # if count % QUESTIONS_PER_PAGE == 0:
+                # go to home page
+                # return print('go the previous page')
+
             return jsonify({
                 'success' : True,
-                'question' : question.format()
+                'deleted' : question_id,
+                'question' : current_questions,
+                'total_questions' : count
             })
+            
+        except:
+            abort(422)
 
     """
     @TODO:
