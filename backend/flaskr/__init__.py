@@ -8,6 +8,17 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
+def paginate_questions(request, selection):
+    page = request.args.get("page", 1, type=int)
+    start = (page - 1) * QUESTIONS_PER_PAGE
+    end = start + QUESTIONS_PER_PAGE
+    
+    questions = [question.format() for question in selection]
+    current_questions = questions[start:end]
+
+    return current_questions
+
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -24,7 +35,7 @@ def create_app(test_config=None):
     # CORS Headers 
     def after_request(response):
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PATCH,POST,DELETE,OPTIONS')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
         return response
 
     @app.route('/categories')
@@ -43,13 +54,11 @@ def create_app(test_config=None):
     # An endpoint to handle GET requests for questions,
     @app.route('/questions', methods=['GET']) 
     def get_questions():
-        # including pagination (every 10 questions).
-        page = request.args.get('page', 1, type = int)
-        start = (page - 1) * QUESTIONS_PER_PAGE
-        end = start + QUESTIONS_PER_PAGE
-
-        questions = Question.query.order_by(Question.id).all()
-        formated_questions = [question.format() for question in questions]
+        selection = Question.query.order_by(Question.id).all()
+        current_questions = paginate_questions(request, selection)
+        
+        if len(current_questions) == 0:
+            abort(404)
 
         categories = Category.query.order_by(Category.id).all()
         categories_type = {category.id:category.type for category in categories}
@@ -57,9 +66,9 @@ def create_app(test_config=None):
         return jsonify({
             'success' : True,
             # This endpoint should return a list of questions,
-            'questions' : formated_questions[start:end],
+            'questions' : current_questions,
             # number of total questions
-            'total_questions' : len(formated_questions),
+            'total_questions' : len(Question.query.all()),
             # current category
             'current_category' : None,
             # categories
@@ -114,9 +123,9 @@ def create_app(test_config=None):
         categories = Category.query.order_by(Category.type).all()
         formated_categories = {category.id:category.type for category in categories}
 
-        # if question is None:
-        #     abort(404)
-        # else :
+        if question is None:
+            abort(404)
+        
         question.insert()
         return jsonify({
             'success' : True,
