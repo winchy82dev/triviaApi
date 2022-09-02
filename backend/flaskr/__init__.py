@@ -11,14 +11,13 @@ QUESTIONS_PER_PAGE = 10
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    # CORS(app)
     setup_db(app)
 
-    
-    # Setting up CORS. Allow '*' for origins.
     # TODO:Delete the sample route after completing the TODOs
     
-    cors = CORS(app, resources={r"*/*": {"origins": "*"}})
+    # Setting up CORS. Allow '*' for origins.
+    CORS(app)
+    # cors = CORS(app, resources={r"/*": {"origins": "*"}})
    
     # Setting Access-Control-Allow Using the after_request decorator
     @app.after_request
@@ -29,11 +28,11 @@ def create_app(test_config=None):
         return response
 
     @app.route('/categories')
-    @cross_origin()
     def get_categories():
         # An endpoint to handle GET requests for all categories.
-        
-        categories = Category.query.all()
+        # sort alphabetically using order_by(Category.type)
+        # instead of order_by(Category.id)
+        categories = Category.query.order_by(Category.type).all()
         formated_categories = [category.format() for category in categories]
         
         return jsonify({
@@ -42,20 +41,19 @@ def create_app(test_config=None):
         })
 
     # An endpoint to handle GET requests for questions,
-    @app.route('/questions')
-    @cross_origin()   
+    @app.route('/questions') 
     def get_questions():
         # including pagination (every 10 questions).
         page = request.args.get('page', 1, type = int)
         start = (page - 1) * QUESTIONS_PER_PAGE
         end = start + QUESTIONS_PER_PAGE
 
-        questions = Question.query.all()
+        questions = Question.query.order_by(Question.id).all()
         formated_questions = [question.format() for question in questions]
 
-        categories = Category.query.all()
+        categories = Category.query.order_by(Category.id).all()
         categories_type = {category.id:category.type for category in categories}
-        print(categories_type)
+        
         return jsonify({
             'success' : True,
             # This endpoint should return a list of questions,
@@ -79,10 +77,22 @@ def create_app(test_config=None):
     """
     @TODO:
     Create an endpoint to DELETE question using a question ID.
-
+    
     TEST: When you click the trash icon next to a question, the question will be removed.
     This removal will persist in the database and when you refresh the page.
     """
+    @app.route('/questions/<int:question_id>', methods=["DELETE"])
+    def get_specific_question(question_id):
+        question = Question.query.filter(Question.id == question_id).one_or_none()
+        print(question)
+        if question is None:
+            abort(404)
+        else :
+            # question.delete()
+            return jsonify({
+                'success' : True,
+                'question' : question.format()
+            })
 
     """
     @TODO:
