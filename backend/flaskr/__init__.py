@@ -106,7 +106,7 @@ def create_app(test_config=None):
             return jsonify({
                 'success' : True,
                 'created' :  category.id,
-                'question' : category.format(),
+                'category' : category.format(),
                 'categories' : formated_categories
             })
         except:
