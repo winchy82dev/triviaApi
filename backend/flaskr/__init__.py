@@ -4,7 +4,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS, cross_origin
 import random
 
+#----------------------------------------------------------------------------#
+# Models.
+#----------------------------------------------------------------------------#
+
 from models import setup_db, Question, Category
+
+
 
 QUESTIONS_PER_PAGE = 10
 
@@ -20,6 +26,11 @@ def paginate_questions(request, selection):
 
 
 def create_app(test_config=None):
+
+    #----------------------------------------------------------------------------#
+    # App Config.
+    #----------------------------------------------------------------------------#
+
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     setup_db(app)
@@ -35,9 +46,17 @@ def create_app(test_config=None):
         response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
         return response
 
+    #----------------------------------------------------------------------------#
+    # Controllers.
+    #----------------------------------------------------------------------------#
+
+    #  categories
+    #  ----------------------------------------------------------------
+
+    # An endpoint to handle GET requests for all categories.
     @app.route('/categories')
     def get_categories():
-        # An endpoint to handle GET requests for all categories.
+ 
         # sort alphabetically using order_by(Category.type)
         # instead of order_by(Category.id)
         categories = Category.query.order_by(Category.type).all()
@@ -46,6 +65,30 @@ def create_app(test_config=None):
             'success' : True,
             'categories' : formated_categories  
         })
+
+    # an endpoint to get questions based on category.
+    @app.route('/categories/<int:category_id>/questions')
+    def get_questions_in_category(category_id):
+
+        if category_id >  Category.query.count():
+            abort(404)
+           
+        category = Category.format(Category.query.get(category_id))
+        questions = Question.query.filter(
+            Question.category == str(category_id)
+            ).all()
+
+        questions_in_category = paginate_questions(request, questions)
+        
+        return jsonify({
+            'success' : True,
+            'questions' : questions_in_category,
+            'total_questions' : len(questions),
+            'current_category' : category['type'],
+        })
+
+    #  questions
+    #  ----------------------------------------------------------------
 
     # An endpoint to handle GET requests for questions,
     @app.route('/questions', methods=['GET']) 
@@ -144,27 +187,10 @@ def create_app(test_config=None):
                 'current_categories' : None
             })
 
-    # an endpoint to get questions based on category.
-    @app.route('/categories/<int:category_id>/questions')
-    def get_questions_in_category(category_id):
 
-        if category_id >  Category.query.count():
-            abort(404)
-           
-        category = Category.format(Category.query.get(category_id))
-        questions = Question.query.filter(
-            Question.category == str(category_id)
-            ).all()
-
-        questions_in_category = paginate_questions(request, questions)
-        
-        return jsonify({
-            'success' : True,
-            'questions' : questions_in_category,
-            'total_questions' : len(questions),
-            'current_category' : category['type'],
-        })
-
+    #  quizzes
+    #  ----------------------------------------------------------------
+    
     # a POST endpoint to get questions to play the quiz
     @app.route('/quizzes', methods=["POST"])
     def play_quizz():
@@ -214,7 +240,10 @@ def create_app(test_config=None):
             'question' : current_question
             })
 
+    #----------------------------------------------------------------------------#
     # some error handlers on client side
+    #----------------------------------------------------------------------------#
+
     @app.errorhandler(400)
     def bad_request(error):
         return jsonify({
@@ -263,7 +292,9 @@ def create_app(test_config=None):
             'message' : 'Unprocessable Entity'
         }), 422
 
+    #----------------------------------------------------------------------------#
     # some error handlers on server side
+    #----------------------------------------------------------------------------#
 
     @app.errorhandler(500)
     def internal_server_error(error):
@@ -304,5 +335,9 @@ def create_app(test_config=None):
             'error' : 504,
             'message' : 'Gateway Timeout'
         }), 504
+
+    #----------------------------------------------------------------------------#
+    # Launch.
+    #----------------------------------------------------------------------------#
 
     return app
