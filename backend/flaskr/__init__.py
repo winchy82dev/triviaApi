@@ -1,4 +1,5 @@
 import os
+from unicodedata import category
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS, cross_origin
@@ -87,6 +88,29 @@ def create_app(test_config=None):
             'total_questions' : len(questions),
             'current_category' : category['type'],
         })
+    
+    # an endpoint to create new category.
+    @app.route('/categories', methods=["POST"])
+    def create_category():
+        try:
+            category = Category(
+                type = 'life'
+            )
+            categories = Category.query.order_by(Category.type).all()
+            formated_categories = {category.id:category.type for category in categories}
+
+            if category is None:
+                abort(404)
+            
+            category.insert()
+            return jsonify({
+                'success' : True,
+                'created' :  category.id,
+                'question' : category.format(),
+                'categories' : formated_categories
+            })
+        except:
+            abort(422)
 
     #  Question
     #  ----------------------------------------------------------------
