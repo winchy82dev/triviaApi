@@ -211,11 +211,96 @@ def create_app(test_config=None):
             'question' : current_question
             })
 
-    """
-    @TODO:
-    Create error handlers for all expected errors
-    including 404 and 422.
-    """
+    # some error handlers on client side
+    @app.errorhandler(400)
+    def bad_request(error):
+        return jsonify({
+            'success' : False,
+            'error' : 400,
+            'message' : 'Bad Request'
+        }), 400
+
+    @app.errorhandler(401)
+    def unauthorized(error):
+        return jsonify({
+            'success' : False,
+            'error' : 401,
+            'message' : 'Unauthorized'
+        }), 401
+    
+    @app.errorhandler(403)
+    def forbidden(error):
+        return jsonify({
+            'success' : False,
+            'error' : 403,
+            'message' : 'Forbidden'
+        }), 403
+    
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({
+            'success' : False,
+            'error' : 404,
+            'message' : 'Ressource Not Found'
+        }), 404
+
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        return jsonify({
+            'success' : False,
+            'error' : 405,
+            'message' : 'Method Not Allowed'
+        }), 405
+
+    @app.errorhandler(422)
+    def unprocessable(error):
+        return jsonify({
+            'success' : False,
+            'error' : 422,
+            'message' : 'Unprocessable Entity'
+        }), 422
+
+    # some error handlers on server side
+
+    @app.errorhandler(500)
+    def internal_server_error(error):
+        return jsonify({
+            'success' : False,
+            'error' : 500,
+            'message' : 'Internal Server Error'
+        }), 500
+
+    @app.errorhandler(501)
+    def not_implemented(error):
+        return jsonify({
+            'success' : False,
+            'error' : 501,
+            'message' : 'Not Implemented'
+        }), 501
+
+    @app.errorhandler(502)
+    def bad_gateway(error):
+        return jsonify({
+            'success' : False,
+            'error' : 502,
+            'message' : 'Bad Gateway'
+        }), 502
+
+    @app.errorhandler(503)
+    def service_unavailable(error):
+        return jsonify({
+            'success' : False,
+            'error' : 503,
+            'message' : 'Service Unavailable'
+        }), 503
+
+    @app.errorhandler(504)
+    def gateway_timeout(error):
+        return jsonify({
+            'success' : False,
+            'error' : 504,
+            'message' : 'Gateway Timeout'
+        }), 504
 
     return app
 
