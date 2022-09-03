@@ -89,12 +89,16 @@ def create_app(test_config=None):
             'current_category' : category['type'],
         })
     
-    # an endpoint to create new category.
+    # an endpoint to create new category
     @app.route('/categories', methods=["POST"])
     def create_category():
         try:
+            # data = request.get_json().get('type', None)
+            # print(data)
             category = Category(
-                type = 'life'
+                type = request.get_json().get('type', None)
+                # type = 'new category'
+                # type = data if data != None else 'new categeory'
             )
             categories = Category.query.order_by(Category.type).all()
             formated_categories = {category.id:category.type for category in categories}
@@ -109,6 +113,7 @@ def create_app(test_config=None):
                 'category' : category.format(),
                 'categories' : formated_categories
             })
+
         except:
             abort(422)
 
