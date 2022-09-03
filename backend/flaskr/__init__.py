@@ -100,26 +100,28 @@ def create_app(test_config=None):
     # An endpoint to POST a new question,
     @app.route('/questions', methods=["POST"])
     def create_question():
+        try:
+            question = Question(
+                question = request.get_json().get('question', None),
+                answer = request.get_json().get('answer', None),
+                category = request.get_json().get('category', None),
+                difficulty = request.get_json().get('difficulty', None)
+            )
+            categories = Category.query.order_by(Category.type).all()
+            formated_categories = {category.id:category.type for category in categories}
 
-        question = Question(
-            question = request.get_json().get('question', None),
-            answer = request.get_json().get('answer', None),
-            category = request.get_json().get('category', None),
-            difficulty = request.get_json().get('difficulty', None)
-        )
-        categories = Category.query.order_by(Category.type).all()
-        formated_categories = {category.id:category.type for category in categories}
-
-        if question is None:
-            abort(404)
-        
-        question.insert()
-        return jsonify({
-            'success' : True,
-            'created' :  question.id,
-            'question' : question.format(),
-            'categories' : formated_categories
-        })
+            if question is None:
+                abort(404)
+            
+            question.insert()
+            return jsonify({
+                'success' : True,
+                'created' :  question.id,
+                'question' : question.format(),
+                'categories' : formated_categories
+            })
+        except:
+            abort(422)
 
     # a POST endpoint to get questions based on a search term
     @app.route('/questions/search', methods=["POST"])
