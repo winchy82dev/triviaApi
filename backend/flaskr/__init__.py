@@ -201,21 +201,24 @@ def create_app(test_config=None):
     def search():
         searchTerm = request.get_json().get('searchTerm', None)
         print(searchTerm)
-
-        if searchTerm:
-            results = Question.query.filter(
-                Question.question.ilike("%{}%".format(searchTerm))
-                ).all()
-            
-            current_questions = paginate_questions(request, results)
-            # get an issue here, the pagination doesn't work for results questions
-            # it return paginate question not thoses related with the query
-            return jsonify({
-                'success' : True,
-                'questions' : current_questions,
-                'total_questions' :  len(results),
-                'current_categories' : None
-            })
+        try:
+            if searchTerm:
+                results = Question.query.filter(
+                    Question.question.ilike("%{}%".format(searchTerm))
+                    ).all()
+                
+                current_questions = paginate_questions(request, results)
+                # get an issue here, the pagination doesn't work for results questions
+                # it return paginate question not thoses related with the query
+                return jsonify({
+                    'success' : True,
+                    'questions' : current_questions,
+                    'total_questions' :  len(results),
+                    'current_categories' : None
+                })
+                
+        except:
+            abort(422)
 
 
     #  Quizzes endpoint
