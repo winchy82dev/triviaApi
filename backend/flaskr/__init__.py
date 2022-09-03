@@ -176,6 +176,7 @@ def create_app(test_config=None):
             print(current_category)
             print(previous_questions)
             questions= {}
+        
         except Exception:
             abort(400)
         
@@ -186,6 +187,7 @@ def create_app(test_config=None):
                     ).all()
             questions = paginate_questions(request, query)
             print('all questions', questions)
+        
         else:
             # pick selected category
             query = Question.query.filter(
@@ -199,6 +201,7 @@ def create_app(test_config=None):
             print('some questions')
             current_question = questions[random.randint(0, len(questions)-1)]
             print(current_question)
+        
         else:
             print('no question')
             return jsonify({
@@ -303,4 +306,3 @@ def create_app(test_config=None):
         }), 504
 
     return app
-
