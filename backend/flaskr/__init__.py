@@ -10,7 +10,8 @@ import random
 
 from models import setup_db, Question, Category
 
-
+#  Paginate Method
+#  ----------------------------------------------------------------
 
 QUESTIONS_PER_PAGE = 10
 
@@ -50,7 +51,7 @@ def create_app(test_config=None):
     # Controllers.
     #----------------------------------------------------------------------------#
 
-    #  categories
+    #  Category
     #  ----------------------------------------------------------------
 
     # An endpoint to handle GET requests for all categories.
@@ -87,7 +88,7 @@ def create_app(test_config=None):
             'current_category' : category['type'],
         })
 
-    #  questions
+    #  Question
     #  ----------------------------------------------------------------
 
     # An endpoint to handle GET requests for questions,
@@ -188,7 +189,7 @@ def create_app(test_config=None):
             })
 
 
-    #  quizzes
+    #  Quizzes endpoint
     #  ----------------------------------------------------------------
     
     # a POST endpoint to get questions to play the quiz
@@ -241,9 +242,12 @@ def create_app(test_config=None):
             })
 
     #----------------------------------------------------------------------------#
-    # some error handlers on client side
+    # some error handlers 
     #----------------------------------------------------------------------------#
 
+    #  on client Side
+    #  ----------------------------------------------------------------
+    
     @app.errorhandler(400)
     def bad_request(error):
         return jsonify({
@@ -292,10 +296,9 @@ def create_app(test_config=None):
             'message' : 'Unprocessable Entity'
         }), 422
 
-    #----------------------------------------------------------------------------#
-    # some error handlers on server side
-    #----------------------------------------------------------------------------#
-
+    #  on server Side
+    #  ----------------------------------------------------------------
+    
     @app.errorhandler(500)
     def internal_server_error(error):
         return jsonify({
@@ -339,5 +342,5 @@ def create_app(test_config=None):
     #----------------------------------------------------------------------------#
     # Launch.
     #----------------------------------------------------------------------------#
-
+   
     return app
