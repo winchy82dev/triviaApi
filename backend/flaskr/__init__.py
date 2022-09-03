@@ -24,15 +24,13 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     setup_db(app)
 
-    # TODO:Delete the sample route after completing the TODOs
-    
+       
     # Setting up CORS. Allow '*' for origins.
     CORS(app)
-    # cors = CORS(app, resources={r"/*": {"origins": "*"}})
    
     # Setting Access-Control-Allow Using the after_request decorator
+    # CORS Headers
     @app.after_request
-    # CORS Headers 
     def after_request(response):
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
         response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
@@ -101,8 +99,8 @@ def create_app(test_config=None):
             
             question.delete()
             selection = Question.query.order_by(Question.id).all()
-            count = Question.query.count()
             current_questions = paginate_questions(request, selection)
+            count = len(current_questions)
             # if count % QUESTIONS_PER_PAGE == 0:
                 # go to home page
                 # return print('go the previous page')
@@ -189,7 +187,6 @@ def create_app(test_config=None):
             Question.category == str(category_id)
             ).all()
         questions_in_category = paginate_questions(request, questions)
-        
         return jsonify({
             'success' : True,
             'questions' : questions_in_category,
@@ -208,6 +205,56 @@ def create_app(test_config=None):
     one question at a time is displayed, the user is allowed to answer
     and shown whether they were correct or not.
     """
+    @app.route('/quizzes', methods=["POST"])
+    def play_quizz():
+        try:
+            category = request.get_json().get('quiz_category', None)
+            current_category = category['type']
+            
+            previous_questions = request.get_json().get('previous_questions', None)
+            print(current_category)
+            print(previous_questions)
+            questions= {}
+        except Exception:
+            abort(400)
+        
+        # pick all questions
+        if category['type'] == 'click':
+            query = Question.query.filter(
+                Question.id.notin_((previous_questions))
+                    ).all()
+            questions = paginate_questions(request, query)
+            print('all questions', questions)
+        else:
+            # pick selected category
+            query = Question.query.filter(
+                Question.category == category['id']).filter(
+                    Question.id.notin_((previous_questions))
+                ).all()
+            questions = paginate_questions(request, query)
+            print('questions not all:', questions)
+            
+        if questions:
+            print('some questions')
+            current_question = questions[random.randint(0, len(questions)-1)]
+            print(current_question)
+            forceEnd = False if questions else True 
+        else:
+            print('no question')
+            return jsonify({
+                'success': True,
+                "question": None
+                })
+
+        return jsonify({
+            'success': True,
+            'question' : current_question,
+            'quizCategory' : category['type'],
+            'showAnswer' : False,
+            'previousQuestions' : previous_questions,
+            'guess': '',
+            'forceEnd': forceEnd
+            })
 
     """
     @TODO:
