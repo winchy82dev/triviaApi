@@ -24,7 +24,7 @@ class TriviaTestCase(unittest.TestCase):
         }
 
         self.question = {
-            'question' : 'What\'s the capital of Frace ?',
+            'question' : 'What\'s the capital of France ?',
             'answer' : 'Paris',
             'category' : 1,
             'difficulty' : 1
@@ -231,6 +231,28 @@ class TriviaTestCase(unittest.TestCase):
     # Search
     #----------------------------------------------------------------------------#
 
+    def test_questions_search_with_results(self):
+        """Test search() on success"""
+     
+        res = self.client().post('/questions/search', json={'searchTerm': 'France'})
+        data = json.loads(res.data)
+      
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data["total_questions"],1)
+        self.assertTrue(data['questions'])
+        
+
+    def test_questions_search_without_results(self):
+        """Test search() on error"""
+   
+        res = self.client().post('/questions/search', json={'searchTerm': 'lol'})
+        data = json.loads(res.data)
+      
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data["total_questions"],0)
+        self.assertEqual(len(data['questions']),0)
 
     #----------------------------------------------------------------------------#
     # Delete
