@@ -26,7 +26,7 @@ class TriviaTestCase(unittest.TestCase):
         self.question = {
             'question' : 'What\'s the capital of France ?',
             'answer' : 'Paris',
-            'category' : 1,
+            'category' : 3,
             'difficulty' : 1
         }
 
@@ -60,7 +60,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['created'],1)
+        self.assertTrue(data['created'])
 
     def test_create_category_error(self):
         """Test create_category() on error"""
@@ -80,7 +80,7 @@ class TriviaTestCase(unittest.TestCase):
         
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['created'],1)
+        self.assertTrue(data['created'])
     
     # create a second question, the first one will be deleted with the test
     def test_create_question_two(self):
@@ -91,7 +91,7 @@ class TriviaTestCase(unittest.TestCase):
         
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['created'],3)
+        self.assertTrue(data['created'])
     
     # create a third question, for the quizz
     def test_create_question_three(self):
@@ -102,7 +102,7 @@ class TriviaTestCase(unittest.TestCase):
         
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['created'],2)
+        self.assertTrue(data['created'])
 
     def test_create_question_error(self):
         """Test create_question() on error"""
@@ -261,14 +261,14 @@ class TriviaTestCase(unittest.TestCase):
     def test_delete_question(self):
         """Test delete_question() on success"""
         
-        res = self.client().delete('/questions/1')
+        res = self.client().delete('/questions/5')
         data = json.loads(res.data)
         
         question = Question.query.filter(Question.id == 1).one_or_none()
         
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['deleted'],1)
+        self.assertTrue(data['deleted'])
         self.assertEqual(question,None)
 
 # Make the tests conveniently executable
