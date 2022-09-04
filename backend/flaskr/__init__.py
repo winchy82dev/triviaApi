@@ -153,7 +153,7 @@ def create_app(test_config=None):
             question.delete()
             selection = Question.query.order_by(Question.id).all()
             current_questions = paginate_questions(request, selection)
-            count = len(current_questions)
+            count = len(selection)
             # trying to solve this issue (deleting the 11th or 21th or n1th question)
             # recall the same page and not the page before it
             # if count % QUESTIONS_PER_PAGE == 0:
@@ -163,7 +163,7 @@ def create_app(test_config=None):
             return jsonify({
                 'success' : True,
                 'deleted' : question_id,
-                'question' : current_questions,
+                # 'question' : current_questions,
                 'total_questions' : count
             })
             
@@ -214,7 +214,7 @@ def create_app(test_config=None):
                     'success' : True,
                     'questions' : current_questions,
                     'total_questions' :  len(results),
-                    'current_categories' : None
+                    'current_category' : None
                 })
                 
         except:
@@ -230,9 +230,9 @@ def create_app(test_config=None):
         try:
             category = request.get_json().get('quiz_category', None)
             current_category = category['type']
-            
+           
             previous_questions = request.get_json().get('previous_questions', None)
-            print(current_category)
+            print(category)
             print(previous_questions)
             questions= {}
         
@@ -254,12 +254,12 @@ def create_app(test_config=None):
                     Question.id.notin_((previous_questions))
                 ).all()
             questions = paginate_questions(request, query)
-            print('questions not all:', questions)
+            print('questions by category:', questions)
             
         if questions:
-            print('some questions')
             current_question = questions[random.randint(0, len(questions)-1)]
-            print(current_question)
+            print('current questions', current_question)
+            
         
         else:
             print('no question')
