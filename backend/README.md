@@ -253,10 +253,10 @@ You can find a detailed documentation of the API endpoints including the URL, re
 
 ```json
 {
-    'question' : 'What\'s the capital of France ?',
-    'answer' : 'Paris',
-    'category' : 3,
-    'difficulty' : 1
+    "question" : "What\'s the capital of France ?",
+    "answer" : "Paris",
+    "category" : 3,
+    "difficulty" : 1
 }
 ```
 
@@ -293,7 +293,7 @@ You can find a detailed documentation of the API endpoints including the URL, re
 
 ```json
 {
-    'searchTerm' : 'France'
+    "searchTerm" : "France"
 }
 ```
 - Returns: An object with a list of `questions` that contains that `searchTerm`, and their count `total questions`
@@ -323,11 +323,11 @@ You can find a detailed documentation of the API endpoints including the URL, re
 
 ```json
 {
-    'quiz_category':{
-        'type':'Geography',
-        'id':'3'
+    "quiz_category":{
+        "type":"Geography",
+        "id":"3"
     },
-    'previous_questions':[]
+    "previous_questions":[]
 }
 ```
 
